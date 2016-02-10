@@ -120,6 +120,48 @@ head(result[order(result$fdr, decreasing=F), ])
 
 qplot(data=result, x=T, y=mean_diff, shape=as.factor(gene_label), col=as.factor(fdr < 0.05), ylab="Difference in Means", xlab="T statistic") 
 
+
+# Repeat the Analysis with "Optimized" code
+ptm1_alt <- proc.time() 
+
+#query_gene <- "PIK3CA"
+
+# Now we are ready to run the t-test query query. 
+result_alt = DisplayAndDispatchQuery ( 
+  file.path(sqlDir, "t_test_mut_vs_expression_alt.sql"), 
+  project=project, 
+  replacements=list("_QUERY_GENE_"= query_gene ) 
+  
+) 
+
+ptm2_alt <- proc.time() - ptm1_alt 
+cat("Wall-clock time for BigQuery:",ptm2_alt[3]) 
+
+
+result_alt$df <- compute_df(result_alt) 
+result_alt$p_value <- sapply(1:nrow(result_alt), function(i) 2*pt(abs(result_alt$T[i]), result_alt$df[i],lower=FALSE)) 
+result_alt$fdr <- p.adjust(result_alt$p_value, "fdr") 
+result_alt$gene_label <- 1 
+result_alt$gene_label[result_alt$gene == query_gene] <- 2 
+
+result_matrix_alt <- result_alt %>% dplyr::select(gene, study, p_value) %>% tidyr::spread(study, p_value) 
+
+# ordered by difference in means 
+head(result_alt) 
+
+
+# ordered by T statistic 
+head(result_alt[order(result_alt$T, decreasing=T), ]) 
+
+# ordered by FDR 
+head(result_alt[order(result_alt$fdr, decreasing=F), ]) 
+
+
+qplot(data=result_alt, x=T, y=mean_diff, shape=as.factor(gene_label), col=as.factor(fdr < 0.05), ylab="Difference in Means", xlab="T statistic") 
+
+
+
+
 #'  
 #' Let's check on a single gene. We'll pull down 
 #' the actual expression values, and use the R T-test. 
@@ -227,6 +269,46 @@ head(result[order(result$fdr, decreasing=F), ])
 
 
 qplot(data=result, x=T, y=mean_diff, shape=as.factor(gene_label), col=as.factor(fdr < 0.05), ylab="Difference in Means", xlab="T statistic") 
+
+# Repeat with "Optimized" code
+
+ptm3_alt <- proc.time() 
+
+#query_gene <- "PIK3CA"
+
+# Now we are ready to run the t-test query query. 
+result0_alt = DisplayAndDispatchQuery ( 
+  file.path(sqlDir, "t_test_expression_vs_mutated_alt.sql"), 
+  project=project, 
+  replacements=list("_QUERY_GENE_"= query_gene ) 
+  
+) 
+
+ptm4_alt <- proc.time() - ptm3_alt 
+cat("Wall-clock time for BigQuery:",ptm4_alt[3]) 
+
+
+result0_alt$df <- compute_df(result0_alt) 
+result0_alt$p_value <- sapply(1:nrow(result0_alt), function(i) 2*pt(abs(result0_alt$T[i]), result0_alt$df[i],lower=FALSE)) 
+result0_alt$fdr <- p.adjust(result0_alt$p_value, "fdr") 
+result0_alt$gene_label <- 1 
+result0_alt$gene_label[result0_alt$gene == query_gene] <- 2 
+
+result_matrix0_alt <- result0_alt %>% dplyr::select(gene, study, p_value) %>% tidyr::spread(study, p_value) 
+
+# ordered by difference in means 
+head(result0_alt) 
+
+
+# ordered by T statistic 
+head(result0_alt[order(result0_alt$T, decreasing=T), ]) 
+
+# ordered by FDR 
+head(result0_alt[order(result0_alt$fdr, decreasing=F), ]) 
+
+
+qplot(data=result0_alt, x=T, y=mean_diff, shape=as.factor(gene_label), col=as.factor(fdr < 0.05), ylab="Difference in Means", xlab="T statistic") 
+
 
 
 #'  

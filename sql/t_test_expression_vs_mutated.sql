@@ -1,4 +1,4 @@
-#Compute the t-test statistic for the differential expression of mutated vs non mutated samples 
+/*Compute the t-test statistic for the differential expression of mutated vs non mutated samples */
 SELECT 
    p.mut_gene as gene, 
    p.study as study, 
@@ -29,7 +29,7 @@ FROM (
   WHERE 
     SampleTypeLetterCode = 'TP'
     AND HGNC_gene_symbol = '_QUERY_GENE_'
-    //AND Study = 'BRCA' 
+    /*AND Study = 'BRCA' */
 ) e
 INNER JOIN (
   SELECT 
@@ -38,7 +38,7 @@ INNER JOIN (
   FROM [isb-cgc:tcga_201510_alpha.Somatic_Mutation_calls] as m 
   WHERE 
     Variant_classification not in ("Intron","RNA","IGR","lincRNA","3'UTR","Silent","5'UTR")
-    //AND m.Study = 'BRCA'
+    /*AND m.Study = 'BRCA' */
     GROUP BY 
       ParticipantBarcode, Hugo_symbol 
 ) m /* end table of participant */ 
@@ -57,7 +57,7 @@ GROUP BY gene, mut_gene, study
   POW(STDDEV(LOG2(ee.normalized_count+1)),2) as sy2, 
   COUNT(ee.ParticipantBarcode) as ny
 FROM (
-// Cartesian join to get all gene pair combinations for each study
+/* Cartesian join to get all gene pair combinations for each study */
   SELECT 
     em.Study as Study, 
     em.gene as gene, 
@@ -65,7 +65,7 @@ FROM (
     em.ParticipantBarcode as ParticipantBarcode,
     em.normalized_count as normalized_count
   FROM (  
-// First we need to filter the expression table to get only those samples that have been analyzed for mutation
+/* First we need to filter the expression table to get only those samples that have been analyzed for mutation */
     SELECT 
       e.Study as Study, 
       e.HGNC_gene_symbol as gene, 
@@ -81,7 +81,7 @@ FROM (
       WHERE 
         SampleTypeLetterCode = 'TP'
         AND HGNC_gene_symbol = '_QUERY_GENE_'
-        //AND Study = 'BRCA' 
+        /*AND Study = 'BRCA' */
     ) e
     JOIN (
       SELECT ParticipantBarcode
@@ -91,24 +91,24 @@ FROM (
     ON e.ParticipantBarcode = ms.ParticipantBarcode
   ) em
   JOIN (
-#Get list of mutated genes per study
+/*Get list of mutated genes per study */
     SELECT Hugo_symbol, Study
     FROM [isb-cgc:tcga_201510_alpha.Somatic_Mutation_calls]
     WHERE Variant_classification not in ("Intron","RNA","IGR","lincRNA","3'UTR","Silent","5'UTR")
-      //AND Study = 'BRCA'
+      /*AND Study = 'BRCA' */
     GROUP by Hugo_symbol, Study
   ) gm
   ON em.Study = gm.Study
 ) ee
 LEFT OUTER JOIN (
-// Get samples that have mutations for each gene and do an "Anti join to remove those samples
+/* Get samples that have mutations for each gene and do an "Anti join to remove those samples */
   SELECT 
     ParticipantBarcode, 
     Hugo_symbol
   FROM [isb-cgc:tcga_201510_alpha.Somatic_Mutation_calls] as m 
   WHERE 
     Variant_classification not in ("Intron","RNA","IGR","lincRNA","3'UTR","Silent","5'UTR")
-    //AND m.Study = 'BRCA'
+    /*AND m.Study = 'BRCA' */
     GROUP BY 
       ParticipantBarcode, Hugo_symbol 
 ) m /* end table of participant */ 
@@ -121,3 +121,8 @@ GROUP BY gene, mut_gene, study
  ON 
    p.mut_gene = o.mut_gene and p.study = o.study 
  GROUP BY gene, study, x, sx2, nx, y, sy2, ny, T, mean_diff 
+
+ 
+
+ 
+ 

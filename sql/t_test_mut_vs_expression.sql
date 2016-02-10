@@ -1,4 +1,4 @@
-#Compute the t-test statistic for the differential expression of mutated vs non mutated samples 
+/*Compute the t-test statistic for the differential expression of mutated vs non mutated samples */
 SELECT 
    p.gene as gene, 
    p.study as study, 
@@ -21,7 +21,7 @@ SELECT
      [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM] 
    WHERE 
      SampleTypeLetterCode = 'TP' 
-     // AND Study = '_QUERY_STUDY_' 
+     /* AND Study = '_QUERY_STUDY_' */ 
      AND (ParticipantBarcode IN ( 
        SELECT 
          m.ParticipantBarcode
@@ -30,7 +30,7 @@ SELECT
        WHERE 
          m.Hugo_Symbol = '_QUERY_GENE_' 
          AND Variant_classification not in ("Intron","RNA","IGR","lincRNA","3'UTR","Silent","5'UTR")
-       //  AND m.Study = '_QUERY_STUDY_'
+       /*  AND m.Study = '_QUERY_STUDY_' */
        GROUP BY 
          m.ParticipantBarcode 
        )) /* end table of participant */ 
@@ -47,15 +47,15 @@ SELECT
     [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM] 
    WHERE 
     SampleTypeLetterCode = 'TP' 
-    //AND Study = '_QUERY_STUDY_' 
+    /*AND Study = '_QUERY_STUDY_' */
     AND (ParticipantBarcode IN ( 
       SELECT 
         ParticipantBarcode 
       FROM 
         [isb-cgc:tcga_201510_alpha.Somatic_Mutation_calls] 
       WHERE 
-      //Study = '_QUERY_STUDY_' 
-     // and 
+      /*Study = '_QUERY_STUDY_' 
+      and */
       (ParticipantBarcode NOT IN ( 
           SELECT 
             m.ParticipantBarcode, 
@@ -64,7 +64,7 @@ SELECT
           WHERE 
             m.Hugo_Symbol = '_QUERY_GENE_' 
             AND Variant_classification not in ("Intron","RNA","IGR","lincRNA","3'UTR","Silent","5'UTR")
-           // and m.Study = '_QUERY_STUDY_' 
+           /* and m.Study = '_QUERY_STUDY_' */
           GROUP BY 
             m.ParticipantBarcode 
           )) /* end getting table of participants without mutations */ 
@@ -76,3 +76,4 @@ SELECT
  ON 
    p.gene = o.gene and p.study = o.study 
  GROUP BY gene, study, x, sx2, nx, y, sy2, ny, T, mean_diff 
+

@@ -1,4 +1,4 @@
-# Compute the correlation between expression and methylation data. 
+# Compute the correlation between expression data. 
 select query_gene, 
        target_gene, 
        SampleTypeLetterCode, 
